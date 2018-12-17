@@ -1,0 +1,7 @@
+.idea/*
+yoochoose/data/*
+yoochoose/model/*
+diginetica/data/*
+diginetica/model/*
+__pycache__/*
+*/__pycache__/*

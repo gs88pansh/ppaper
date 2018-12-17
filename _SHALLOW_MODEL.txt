@@ -1,0 +1,8 @@
+-----model_name:iknn data_set_name:diginetica
+MRR@20:  : 0.09971001284675317
+HitRate@20:  : 0.29740102343118774
+
+
+-----model_name:iknn data_set_name:diginetica
+MRR@20:  : 0.19515017354822806
+HitRate@20:  : 0.5103016428763802
