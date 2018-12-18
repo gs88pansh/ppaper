@@ -14,9 +14,8 @@ rem item_size, args[12]
 
 rem python train_ri2v.py diginetica ${sa} ${le} ${e} ${em} ${ba} ${hi} ${i2v_model_dir} ${restore_model} 0 ${dr} ${item_size}
 
-
-python train_ri2v.py diginetica 2048 0.0002 40 100 256 100  em100ba512sa256le0.0007 A1 0 0.8 39187
-python train_ri2v.py diginetica 4096 0.0002 40 100 256 100  em100ba512sa256le0.0007 A1 0 0.8 39187
-python train_ri2v.py diginetica 2048 0.0002 40 100 256 200  em100ba512sa256le0.0007 A1 0 0.8 39187
-python train_ri2v.py diginetica 4096 0.0002 40 100 256 200  em100ba512sa256le0.0007 A1 0 0.8 39187
-python train_ri2v.py diginetica 2048 0.0002 40 100 256 100  em100ba512sa256le0.0007 A1 0 0.5 39187
+python train_ri2v.py diginetica 2048 0.0002 40 100 256 100  em100ba512sa256le0.0007 A30 0 0.8 39187
+python train_ri2v.py diginetica 4096 0.0002 40 100 256 100  em100ba512sa256le0.0007 A30 0 0.8 39187
+python train_ri2v.py diginetica 2048 0.0002 40 100 256 200  em100ba512sa256le0.0007 A30 0 0.8 39187
+python train_ri2v.py diginetica 4096 0.0002 40 100 256 200  em100ba512sa256le0.0007 A30 0 0.8 39187
+python train_ri2v.py diginetica 2048 0.0004 40 100 256 100  em100ba512sa256le0.0007 A30 0 0.8 39187
