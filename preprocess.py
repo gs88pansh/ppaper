@@ -68,14 +68,15 @@ def newItemId(train_set, test_set, last_n_days, dataSetName):
     return train_set, test_set, last_n_days
 
 def save_sequence(train_set, test_set, last_n_days,
-                  train_seq_path, test_seq_path, last_n_seq_path,
+                  train_seq_path, test_seq_path, last_n_seq_path, train_plain_seq_path,
                   dataSetName):
     testKV = getKVFromDataFrame(test_set)
     _save_sequence(testKV, test_seq_path)
     lastnKV = getKVFromDataFrame(last_n_days)
     _save_sequence(lastnKV, last_n_seq_path)
-
     trainKV = getKVFromDataFrame(train_set)
+    _save_sequence(trainKV, train_plain_seq_path)
+
     log(".\\{}\\data\\preprocess.log".format(dataSetName), "训练集click次数数：{} 个".format(len(train_set)))
     log(".\\{}\\data\\preprocess.log".format(dataSetName), "训练集session个数：{} 个".format(len(trainKV)))
     log(".\\{}\\data\\preprocess.log".format(dataSetName), "session平均长度：{} ".format(len(train_set) / len(trainKV)))
@@ -227,7 +228,8 @@ def preprocess(dataSetName, raw_data_file, item_num_filter, session_num_max, num
                last_n_seq_path = "/data/preprocessed/last-n-days.txt",
                i2v_path = "/data/preprocessed/i2v.txt",
                train_expand_path = "/data/preprocessed/train-expand.txt",
-               test_expand_path="/data/preprocessed/test-expand.txt"):
+               test_expand_path="/data/preprocessed/test-expand.txt",
+               train_plain_seq_path = "/data/preprocessed/train-plain-seq.txt"):
 
     train_seq_path = "./" + dataSetName + train_seq_path
     test_seq_path = "./" + dataSetName + test_seq_path
@@ -235,6 +237,7 @@ def preprocess(dataSetName, raw_data_file, item_num_filter, session_num_max, num
     i2v_path = "./" + dataSetName + i2v_path
     train_expand_path = "./" + dataSetName + train_expand_path
     test_expand_path = "./" + dataSetName + test_expand_path
+    train_plain_seq_path = "./" + dataSetName + train_plain_seq_path
 
     print("\n\t dataSetName: {} ".format(dataSetName) + ""
           "\n\t raw_data_file: {}".format(raw_data_file) + ""
@@ -264,7 +267,7 @@ def preprocess(dataSetName, raw_data_file, item_num_filter, session_num_max, num
     test_set.to_csv(test_expand_path, sep='\t', index=False)
     #print(train_set)
     trainKV, testKV, lastKV = save_sequence(train_set, test_set, last_n_days,
-                                            train_seq_path, test_seq_path, last_n_seq_path, dataSetName)
+                                            train_seq_path, test_seq_path, last_n_seq_path, train_plain_seq_path, dataSetName)
 
     # item2vec 处理
     save_item2vec(trainKV, window_size, i2v_path, dataSetName)

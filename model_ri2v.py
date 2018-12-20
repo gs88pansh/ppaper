@@ -51,6 +51,7 @@ class RI2V(object):
         self.merge_op = tf.summary.merge_all()
         self.summary_writer = tf.summary.FileWriter(self.summary_path, tf.get_default_graph())
 
+
         self.sess.run(tf.global_variables_initializer())
 
         if not self.is_training :
