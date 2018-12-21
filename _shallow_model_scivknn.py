@@ -9,7 +9,7 @@ from Utils import *
 
 class SCIV_kNN_TF_MODEL(object):
     def __init__(self, sess, item_size, restore_dir, restore_model, saver_dir,
-                 n_session_sample=100, learning_rate=0.0001, joint_train=False,):
+                 n_session_sample=100, learning_rate=0.01, joint_train=False,):
         self.sess = sess
         self.item_size = item_size
         self.restore_dir = restore_dir
@@ -25,6 +25,7 @@ class SCIV_kNN_TF_MODEL(object):
         self.placehoders()
         self.a = tf.Variable(tf.zeros([self.item_size, 1]), trainable=True, dtype=tf.float32, name='a')
         self.b = tf.Variable(tf.zeros([self.item_size, 1]), trainable=True, dtype=tf.float32, name='b')
+
         # 损失函数
         # self.ce = self.CE(self.p(self.score()), self.MASK)
         self.loss = tf.nn.softmax_cross_entropy_with_logits(logits=self.score(),labels=self.MASK)
@@ -96,7 +97,7 @@ class SCIV_kNN_TF_MODEL(object):
         # x1 sessionID
         x0 = indices[i][zero]
         x1 = indices[i][one]
-        b_x0 = tf.nn.embedding_lookup(self.b, x0)
+        b_x0 = tf.nn.embedding_lookup(tf.nn.relu(self.b, "reluo"), x0)
         t_x1 = tf.nn.embedding_lookup(self.Ts, x1)
         a_x0 = tf.nn.embedding_lookup(self.a, x0)
         mf = self.f(a_x0, b_x0, t_x1)
@@ -188,6 +189,9 @@ class SCIVKNN :
 
         #
 
+    def getT(self, days):
+        return days // 10 * 10.0
+
     def fit(self, train, is_training=True, items=None):
 
         # train [time, itemID1, itemID2, ...]
@@ -195,9 +199,9 @@ class SCIVKNN :
         T1 = time.time()
         T2 = time.time()
         for i in range(len(train)):
-            if i % 10000 == 0:
+            if i % 2000 == 0:
                 T2 = time.time()
-                print("{}个session训练时间：{}".format(i, T2-T1))
+                print("{}/{}个session训练时间：{}".format(i, len(train), T2-T1))
                 T1 = time.time()
                 self.model.save_models(i)
             now_session = train[i][1:]
@@ -224,7 +228,7 @@ class SCIVKNN :
                     session_index_map = dict()
                     for neibor in neibors:
                         SIMs[cnt] = neibor[1]
-                        Ts[cnt] = (self.session_time_map.get(neibor[0]) - session_time) / 86400.0 # 天数
+                        Ts[cnt] = self.getT(self.session_time_map.get(neibor[0]) - session_time) / 86400.0 # 天数
                         for nItemID in self.session_item_map.get(neibor[0]):
                             indices.append([nItemID, cnt])
                         cnt += 1
@@ -297,7 +301,7 @@ class SCIVKNN :
                 session_index_map = dict()
                 for neibor in neibors:
                     SIMs[cnt] = neibor[1]
-                    Ts[cnt] = (self.session_time_map.get(neibor[0]) - session_time) / 86400.0  # 天数
+                    Ts[cnt] = (self.session_time_map.get(neibor[0]) - session_time) / (120 * 86400.0)  # 天数
                     for nItemID in self.session_item_map.get(neibor[0]):
                         indices.append([nItemID, cnt])
                     cnt += 1
@@ -657,12 +661,16 @@ if __name__ == "__main__":
 
         model = SCIV_kNN_TF_MODEL(sess, item_size, restore_dir=restore_dir, restore_model=restore_model,learning_rate=learning_rate,
                                   saver_dir=saver_dir, n_session_sample=k)
+
+        # print(sess.run(model.b_))
+        # exit(0)
+
         scivknn = SCIVKNN(k, item_size, model)
         train_seq_arr = scivknn.getDataSet("./{}/data/preprocessed/train-plain-seq.txt".format(dataSetName))
         test_seq_arr = scivknn.getDataSet("./{}/data/preprocessed/test-seq.txt".format(dataSetName))
 
         print("训练数据加载完毕...")
-        scivknn.fit(train_seq_arr, False)
+        scivknn.fit(train_seq_arr, True)
         scivknn.test(test_seq_arr)
 
 
