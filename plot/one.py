@@ -11,7 +11,7 @@ def timeEffect(x,a,b):
 
 x = np.arange(-50, 100, 0.2)
 
-a_b = [13.72294, 0.37965325]
+a_b = [-0.118652,0.0747636]
 
 
 a_b_change_y = timeEffect(x,a_b[0],a_b[1])

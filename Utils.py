@@ -499,6 +499,8 @@ def evaluate_sessions(pr, metrics, test_data, train_data, items=None, cut_off=20
 
     return res
 
+def dateNow():
+    return time.strftime("%Y-%m-%e %H:%M:%S")
 
 if __name__ == "__main__":
     print(os.path.join(os.getcwd(), 'trained_variables2.ckpt'))

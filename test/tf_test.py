@@ -121,10 +121,10 @@ def test_readModel():
     saver = tf.train.Saver({"a": a, "b": b}, max_to_keep=100)
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
-        saver.restore(sess, "../diginetica/model/scivknn/k100le0.001/A2000")
+        saver.restore(sess, "../diginetica/model/scivknn/k100le0.001/A180000")
         a_, b_ = sess.run([a,b])
         print(a_)
-        for i in range(10000) :
+        for i in range(len(a_)) :
             print("[", str(a_[i][0]) + ',' + str(b_[i][0]), "],")
 
 

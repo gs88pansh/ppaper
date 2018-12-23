@@ -42,6 +42,9 @@ class SCIV_kNN_TF_MODEL(object):
             self.saver = tf.train.Saver(var_list={v.op.name: v for v in tf.trainable_variables()}, max_to_keep=100)
             self.saver.restore(sess, save_path=self.restore_dir + "/" + self.restore_model)
 
+    def restoreModel(self, restorepath):
+        self.saver.restore(self.sess, restorepath)
+
     def save_models(self, step):
         save_path = self.saver_dir + "/A{}".format(step)
         self.saver.save(self.sess,save_path=save_path)
@@ -97,7 +100,7 @@ class SCIV_kNN_TF_MODEL(object):
         # x1 sessionID
         x0 = indices[i][zero]
         x1 = indices[i][one]
-        b_x0 = tf.nn.embedding_lookup(tf.nn.relu(self.b, "reluo"), x0)
+        b_x0 = tf.nn.embedding_lookup(self.b, x0)
         t_x1 = tf.nn.embedding_lookup(self.Ts, x1)
         a_x0 = tf.nn.embedding_lookup(self.a, x0)
         mf = self.f(a_x0, b_x0, t_x1)
@@ -192,31 +195,33 @@ class SCIVKNN :
     def getT(self, days):
         return days // 10 * 10.0
 
-    def fit(self, train, is_training=True, items=None):
+    def fit(self, train, is_training=True, restore_dir_model="", items=None):
 
         # train [time, itemID1, itemID2, ...]
         # 严格按照时间顺序的 session
         T1 = time.time()
         T2 = time.time()
+        if not is_training:
+            self.model.restoreModel(restore_dir_model)
         for i in range(len(train)):
-            if i % 2000 == 0:
+            if i >= 10000 and i % 10000 == 0:
                 T2 = time.time()
                 print("{}/{}个session训练时间：{}".format(i, len(train), T2-T1))
                 T1 = time.time()
-                self.model.save_models(i)
+                if i > len(train) - 20000:
+                    self.model.save_models(i)
             now_session = train[i][1:]
             if len(now_session) == 1:
                 continue
             session_time = train[i][0]
             session_id = i
 
-            MASK = np.zeros([self.item_size])
-            MASK[now_session] = 1 / len(now_session)
-
-
-            # 根据当前输入的 item_id 迅速选取的 k 个最相似的 session
-            before_session = set()
-            if is_training:
+            if is_training and i > len(train) - 20000:
+                judgeDirExistAndDelCreate(model.saver_dir)
+                MASK = np.zeros([self.item_size])
+                MASK[now_session] = 1 / len(now_session)
+                # 根据当前输入的 item_id 迅速选取的 k 个最相似的 session
+                before_session = set()
                 for itemID in now_session[:-1]:
                     indices = []
                     Ts = np.zeros([self.k])
@@ -232,50 +237,44 @@ class SCIVKNN :
                         for nItemID in self.session_item_map.get(neibor[0]):
                             indices.append([nItemID, cnt])
                         cnt += 1
-
-                    # 训练过程
-
-
-                    # 暂时注释掉
-                    #################################################
-
-
                     feed = {model.Ts: Ts, model.MASK: MASK, model.SIMs: SIMs,
                             model.indices: indices,
                             model.values: np.ones(len(indices)),
                             model.shape: [model.item_size, model.n_session_sample]}
                     model.sess.run(model.train_op, feed)
 
-                    # if i % 1000 == 0:
-                    #     print("nimabi")
-                    #     a_g, b_g, scores = model.sess.run([model.a_g, model.b_g, model.scores], feed)
-                    #     print("a_g", a_g)
-                    #     print("scores", scores)
+            self.addTrainData(train[i], session_id)
 
-            # Add the last tuple
-            session_items = set(now_session)
-            self.session_item_map.update({session_id : session_items})
-            self.session_time_map.update({session_id: session_time})
-            for itemID in session_items:
-                itemSessionSet = set()
-                if self.item_session_map.get(itemID) is None:
-                    self.item_session_map.update({itemID : itemSessionSet})
-                else :
-                    itemSessionSet = self.item_session_map.get(itemID)
-                itemSessionSet.add(session_id)
+        self.model.save_models(100000)
 
+
+    def addTrainData(self, s, sID):
+        now_session = s[1:]
+        session_time = s[0]
+        session_id = sID
+        session_items = set(now_session)
+        self.session_item_map.update({session_id: session_items})
+        self.session_time_map.update({session_id: session_time})
+        for itemID in session_items:
+            itemSessionSet = set()
+            if self.item_session_map.get(itemID) is None:
+                self.item_session_map.update({itemID: itemSessionSet})
+            else:
+                itemSessionSet = self.item_session_map.get(itemID)
+            itemSessionSet.add(session_id)
 
     def test(self, test):
         startIndex = 1000000
         yes = 0
+        mrr = 0
         total = 0
         T1 = time.time()
         T2 = time.time()
         for i in range(len(test)):
-            if i % 1000 == 200:
+            if i % 1000 == 0:
                 T2 = time.time()
-                print("时间 {:.0f}  {} / {}     {:.5f}".format(T2-T1 , i, len(test), yes / total))
-
+                print("时间：{} 上一次间隔：{:.0f}s  {}/{} recall@20:{:.5f} mrr@20:{:.5f}".format(dateNow(), T2-T1 , i, len(test), yes / total, mrr / total))
+                T1 = time.time()
             session_id = startIndex + i
             session_time = test[i][0]
             items = test[i][1:]
@@ -286,12 +285,17 @@ class SCIVKNN :
             self.relevant_sessions = set()
 
             top20 = set()
-
+            top20List = []
             total -= 1
             for itemID in items:
                 total += 1
                 if itemID in top20:
                     yes += 1
+                    for index in range(len(top20List)):
+                        if top20List[index] == itemID[index]:
+                            mrr += 1/(index+1)
+                            break
+
                 before_session.add(itemID)
                 neibors = self.find_neighbors(before_session, itemID, session_id)
                 Ts = np.zeros([self.k])
@@ -310,10 +314,9 @@ class SCIVKNN :
                         model.indices: indices,
                         model.values: np.ones(len(indices)),
                         model.shape: [model.item_size, model.n_session_sample]}
-                top20 = model.sess.run(model.top20, feed)
-
+                top20List = model.sess.run(model.top20, feed)
                 top20 = set(top20)
-
+            self.addTrainData(test[i], i)
 
 
 
@@ -657,13 +660,9 @@ if __name__ == "__main__":
         restore_model = ""
         saver_dir = "./{}/model/scivknn/k{}le{}".format(dataSetName, k, learning_rate)
 
-        judgeDirExistAndDelCreate(saver_dir)
 
         model = SCIV_kNN_TF_MODEL(sess, item_size, restore_dir=restore_dir, restore_model=restore_model,learning_rate=learning_rate,
                                   saver_dir=saver_dir, n_session_sample=k)
-
-        # print(sess.run(model.b_))
-        # exit(0)
 
         scivknn = SCIVKNN(k, item_size, model)
         train_seq_arr = scivknn.getDataSet("./{}/data/preprocessed/train-plain-seq.txt".format(dataSetName))
@@ -671,6 +670,7 @@ if __name__ == "__main__":
 
         print("训练数据加载完毕...")
         scivknn.fit(train_seq_arr, True)
+        # scivknn.fit(train_seq_arr, False, "./{}/model/scivknn/k100le0.001/A190000".format(dataSetName))
         scivknn.test(test_seq_arr)
 
 
