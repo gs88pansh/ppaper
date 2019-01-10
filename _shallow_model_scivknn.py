@@ -43,6 +43,9 @@ class SCIV_kNN_TF_MODEL(object):
     def restoreModel(self, restorepath):
         self.saver.restore(self.sess, restorepath)
 
+    def restoreModel(self, restorepath):
+        self.saver.restore(self.sess, restorepath)
+
     def save_models(self, step):
         save_path = self.saver_dir + "/A{}".format(step)
         self.saver.save(self.sess,save_path=save_path)
@@ -675,6 +678,7 @@ if __name__ == "__main__":
         scivknn.fit(train_seq_arr, True)
         # scivknn.fit(train_seq_arr, False, True)
         # scivknn.fit(train_seq_arr, False, "./{}/model/scivknn/k100le0.001/AFFFFFF".format(dataSetName))
+
 
         scivknn.test(test_seq_arr)
 
