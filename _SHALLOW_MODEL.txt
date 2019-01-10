@@ -7,3 +7,4 @@ HitRate@20:  : 0.29740102343118774
 MRR@20:  : 0.19515017354822806
 HitRate@20:  : 0.5103016428763802
 -----model_name:iknn data_set_name:diginetica
+-----model_name:iknn data_set_name:diginetica

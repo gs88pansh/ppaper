@@ -1,5 +1,7 @@
 import tensorflow as tf
 
+from functools import reduce
+from operator import mul
 
 class RI2V(object):
 
@@ -51,8 +53,9 @@ class RI2V(object):
         self.merge_op = tf.summary.merge_all()
         self.summary_writer = tf.summary.FileWriter(self.summary_path, tf.get_default_graph())
 
-
         self.sess.run(tf.global_variables_initializer())
+
+        print("训练参数个数",self.get_num_params())
 
         if not self.is_training :
             if not self.joint_train:
@@ -79,6 +82,14 @@ class RI2V(object):
                     var_list={"embedding_matrix": self.embedding_matrix, "softmax_w": self.softmax_w, "softmax_b": self.softmax_b, },
                     name="restore")
                 restore.restore(sess,save_path=self.restore_i2v_dir +"/"+ self.restore_i2v_model)
+
+
+    def get_num_params(self):
+        num_params = 0
+        for variable in tf.trainable_variables():
+            shape = variable.get_shape()
+            num_params += reduce(mul, [dim.value for dim in shape], 1)
+        return num_params
 
     def log(self,feed,j):
         su = self.sess.run(self.merge_op,feed_dict=feed)
