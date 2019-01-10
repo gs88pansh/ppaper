@@ -250,22 +250,6 @@ class SCIVKNN :
         if (is_training):
             self.model.save_models("FFFFFF")
 
-
-    def addTrainData(self, s, sID):
-        now_session = s[1:]
-        session_time = s[0]
-        session_id = sID
-        session_items = set(now_session)
-        self.session_item_map.update({session_id: session_items})
-        self.session_time_map.update({session_id: session_time})
-        for itemID in session_items:
-            itemSessionSet = set()
-            if self.item_session_map.get(itemID) is None:
-                self.item_session_map.update({itemID: itemSessionSet})
-            else:
-                itemSessionSet = self.item_session_map.get(itemID)
-            itemSessionSet.add(session_id)
-
     def addTrainData(self, s, sID):
         now_session = s[1:]
         session_time = s[0]
