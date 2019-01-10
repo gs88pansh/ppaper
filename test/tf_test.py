@@ -121,11 +121,33 @@ def test_readModel():
     saver = tf.train.Saver({"a": a, "b": b}, max_to_keep=100)
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
-        saver.restore(sess, "../diginetica/model/scivknn/k100le0.001/A40000")
+        saver.restore(sess, "../diginetica/model/scivknn/k100le0.01sampling_random/AFFFFFF")
         a_, b_ = sess.run([a,b])
         print(a_)
-        for i in range(10) :
-            print("[", str(a_[i][0]) + ',' + str(b_[i][0]), "],")
+        for i in range(len(a_)) :
+            if a_[i][0] > 0.7:
+                print("[", str(a_[i][0]) + ',' + str(b_[i][0]), "],")
+
+def test_readI2VModel():
+    a = tf.Variable(tf.zeros([39187, 100]), trainable=True, dtype=tf.float32, name='a')
+    # b = tf.Variable(tf.zeros([39187, 100]), trainable=True, dtype=tf.float32, name='b')
+
+    saver = tf.train.Saver({"softmax_w": a}, max_to_keep=100)
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        saver.restore(sess, "../diginetica/model/i2v/em100ba512sa256le0.0007/A20")
+        a_ = sess.run([a])
+        print(a_)
+
+def test_genNewRandom():
+    a = tf.placeholder(dtype=tf.float32, shape=[2,2])
+    b = tf.add(a, tf.random_uniform([2,2],minval=-10, maxval=10))
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        for i in range(10):
+            feed = {a:[[0,0],[0,0]]}
+            a_ = sess.run([b],feed_dict=feed)
+            print(a_)
 
 
 if __name__ == "__main__":
@@ -136,4 +158,6 @@ if __name__ == "__main__":
     # test_where()
     # test_randomRead()
     # test_oneHot()
-    test_readModel()
+    # test_readModel()
+    # test_readI2VModel()
+    test_genNewRandom()

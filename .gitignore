@@ -5,3 +5,7 @@ diginetica/data/*
 diginetica/model/*
 __pycache__/*
 */__pycache__/*
+!./**/README.txt
+!./**/result.log
+!./**/preprocess.log
+

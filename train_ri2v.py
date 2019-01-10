@@ -45,9 +45,10 @@ class Args(object):
     joint_train = int(args[10]) == 1
     keep_prob = float(args[11])
     item_size = int(args[12])
+    is_random_added = int(args[13]) == 1 # 输入数据加随机
 
     training_seq_path = this_base_dir + "/data/preprocessed/train-seq.txt"
-    test_seq_path = this_base_dir + "/data/preprocessed/test-seq.txt"
+    testing_seq_path = this_base_dir + "/data/preprocessed/test-seq.txt"
 
     restore_ri2v_dir = ""
     restore_ri2v_model = ""
@@ -55,12 +56,12 @@ class Args(object):
     restore_model = ""
 
     saver_dir = this_base_dir + "/model/ri2v" \
-        + "/em{}hi{}ba{}sa{}le{:6f}dr{:.2f}"\
-            .format(embedding_size, hidden_size, batch_size, n_sampled, learning_rate, 1-keep_prob)
+        + "/em{}hi{}ba{}sa{}le{:6f}dr{:.2f}random{}"\
+            .format(embedding_size, hidden_size, batch_size, n_sampled, learning_rate, 1-keep_prob, is_random_added)
 
     summary_path = this_base_dir + "/model/ri2v" \
-        + "/view_em{}hi{}ba{}sa{}le{:6f}dr{:.2f}"\
-            .format(embedding_size, hidden_size, batch_size, n_sampled, learning_rate, 1-keep_prob)
+        + "/view_em{}hi{}ba{}sa{}le{:6f}dr{:.2f}random{}"\
+            .format(embedding_size, hidden_size, batch_size, n_sampled, learning_rate, 1-keep_prob, is_random_added)
 
     D = RI2VDataSet()
     log_dir = this_base_dir + "/model/README.txt"
