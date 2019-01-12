@@ -20,6 +20,7 @@ class RI2V(object):
         self.sess = sess
         self.summary_path = args.summary_path
         self.is_training = is_training
+        self.randomAdd = args.is_random_added
 
         self.placehoders()
         embed = self.embedding_layer(name="embedding_layer")
@@ -113,6 +114,8 @@ class RI2V(object):
             tf.summary.histogram("embedding_matrix",self.embedding_matrix)
             # embed: 'batch_size * step_size * embeding_size'
             embed = tf.nn.embedding_lookup(self.embedding_matrix, self.inputs)
+            if self.randomAdd:
+                embed = tf.add(embed, tf.random_uniform(tf.shape(embed), minval=-0.003, maxval=0.003, ))
             return embed
     def rnn_layer(self,X,name="rnn_layer",time_major=False,):
         """

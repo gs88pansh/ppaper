@@ -9,7 +9,7 @@ args = sys.argv
 dataSetName = args[1]
 
 
-log(log_dir, "-----model_name:{} data_set_name:{}".format("iknn",dataSetName))
+log(log_dir, "-----model_name:{} data_set_name:{}".format("cknn",dataSetName))
 
 print("data_set_name:", args[1])
 

@@ -12,7 +12,7 @@ rem i2v_path            ./yoochoose/data/preprocessed/i2v.txt
 
 python preprocess.py ^
 yoochoose ^
-./yoochoose/data/raw/yoochoose-training.txt ^
+./yoochoose/data/raw/yoochoose-clicks.dat ^
 5 ^
 15 ^
 15 ^

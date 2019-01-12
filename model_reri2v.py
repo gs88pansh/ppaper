@@ -5,7 +5,7 @@ import tensorflow as tf
 class Re_RI2V(object):
     def __init__(self,sess,args):
         self.embedding_size , self.rnn_states, self.item_size, self.batch_size, self.n_sampled, self.learning_rate, self.joint_train = \
-        args.embedding_size, args.rnn_states, args.item_size, args.batch_size, args.n_sampled, args.learning_rate, args.joint_train
+        args.embedding_size, args.hidden_size, args.item_size, args.batch_size, args.n_sampled, args.learning_rate, args.joint_train
         self.saver_dir = args.saver_dir
         self.restore_dir = args.restore_dir
         self.restore_model = args.restore_model

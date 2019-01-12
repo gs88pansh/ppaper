@@ -135,7 +135,7 @@ def trainRnnProcess(args, model_name):
             exit(0)
         D = args.D
         tr_x, tr_y, tr_lasty, tr_items, tr_item_arr_arr = D.input_data(path=args.training_seq_path)
-        te_x, te_y, te_lasty, te_items, te_item_arr_arr = D.input_data(path=args.training_seq_path)
+        te_x, te_y, te_lasty, te_items, te_item_arr_arr = D.input_data(path=args.testing_seq_path)
 
         testX,testY,te_lastY = D.epoch_shuffle_data(te_x,te_y,te_lasty,model.batch_size)
         log(args.log_dir,
@@ -496,7 +496,6 @@ def evaluate_sessions(pr, metrics, test_data, train_data, items=None, cut_off=20
     res = []
     for m in metrics:
         res.append(m.result())
-
     return res
 
 def dateNow():

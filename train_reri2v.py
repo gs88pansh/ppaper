@@ -39,8 +39,8 @@ class Args(object):
     keep_prob = float(args[11])
     item_size = int(args[12])
 
-    training_seq_path = this_base_dir + "/data/preprocessed/train-seq.txt"
-    test_seq_path = this_base_dir + "/data/preprocessed/test-seq.txt"
+    training_seq_path = this_base_dir + "/data/preprocessed/last-n-days.txt"
+    testing_seq_path = this_base_dir + "/data/preprocessed/test-seq.txt"
 
     saver_dir = this_base_dir + "/model/reri2v" \
         + "/em{}hi{}ba{}sa{}le{:6f}dr{:.2f}"\
