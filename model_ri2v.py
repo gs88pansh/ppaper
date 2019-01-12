@@ -127,6 +127,8 @@ class RI2V(object):
             final_states: shape[batch_size,rnn_states]
         """
         cell = tf.nn.rnn_cell.GRUCell(num_units=self.hidden_size)
+        if self.is_training:
+            cell = tf.nn.rnn_cell.DropoutWrapper(cell, output_keep_prob=self.keep_prob)
         init_state = cell.zero_state(self.batch_size, dtype=tf.float32)
         outputs, final_state = tf.nn.dynamic_rnn(cell, X, initial_state=init_state, time_major=time_major)
         return outputs, final_state
